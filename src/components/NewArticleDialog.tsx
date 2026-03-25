@@ -1,124 +1,148 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { fetchCategories, createArticle } from "@/lib/supabase-helpers";
+import { useInstance } from "@/context/InstanceContext";
 import { toast } from "sonner";
+import * as LucideIcons from "lucide-react/dist/esm/icons";
 
-interface NewArticleDialogProps {
-  open: boolean;
-  onClose: () => void;
-  barcode: string;
-  onCreated: () => void;
-}
+export default function NewArticleDialog({ onClose }: { onClose: () => void }) {
+  const { instanceId } = useInstance();
 
-export function NewArticleDialog({ open, onClose, barcode, onCreated }: NewArticleDialogProps) {
   const [name, setName] = useState("");
+  const [stock, setStock] = useState(0);
+  const [minimumStock, setMinimumStock] = useState(0);
+  const [location, setLocation] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [minimumStock, setMinimumStock] = useState("3");
-  const [loading, setLoading] = useState(false);
+  const [icon, setIcon] = useState("");
+  const [barcode, setBarcode] = useState("");
 
+  // Kategorien laden
   const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryKey: ["categories", instanceId],
+    queryFn: () => fetchCategories(instanceId!),
+    enabled: !!instanceId,
   });
 
-  const handleSave = async () => {
-    if (!name.trim()) {
-      toast.error("Bitte gib einen Namen ein");
-      return;
-    }
-    if (!categoryId) {
-      toast.error("Bitte wähle eine Kategorie");
+  // Icon-Liste generieren
+  const iconNames = Object.keys(LucideIcons).filter((key) =>
+    key.endsWith("Icon")
+  );
+
+  async function handleCreate() {
+    if (!instanceId) {
+      toast.error("Keine Instanz gefunden.");
       return;
     }
 
-    setLoading(true);
     try {
-      await createArticle({
-        barcode,
-        name: name.trim(),
-        category_id: categoryId,
-        minimum_stock: parseInt(minimumStock) || 1,
-      });
-      toast.success(`${name} wurde angelegt und eingebucht`);
-      onCreated();
+      const newArticle = {
+        name,
+        current_stock: stock,
+        minimum_stock: minimumStock,
+        location,
+        category_id: categoryId || null,
+        icon: icon || null,
+        barcode: barcode || null,
+      };
+
+      await createArticle(newArticle, instanceId);
+      toast.success("Artikel erstellt!");
       onClose();
     } catch (err: any) {
-      toast.error("Fehler: " + (err.message || "Unbekannter Fehler"));
-    } finally {
-      setLoading(false);
+      toast.error(err.message || "Fehler beim Erstellen des Artikels");
     }
-  };
+  }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="mx-4 rounded-2xl">
-        <DialogHeader>
-          <DialogTitle>Neuer Artikel</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 mt-2">
-          <div className="text-xs text-muted-foreground font-mono bg-muted px-3 py-1.5 rounded-lg">
-            Barcode: {barcode}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">Artikelname</Label>
-            <Input
-              id="name"
-              placeholder="z.B. Nudeln"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Kategorie</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Kategorie wählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="min-stock">Mindestbestand</Label>
-            <Input
-              id="min-stock"
-              type="number"
-              min={1}
-              value={minimumStock}
-              onChange={(e) => setMinimumStock(e.target.value)}
-            />
-          </div>
-          <Button
-            onClick={handleSave}
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? "Wird gespeichert..." : "Speichern & Einbuchen"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Neuen Artikel erstellen</h2>
+
+      {/* Name */}
+      <input
+        className="w-full border p-2 rounded mb-3"
+        placeholder="Artikelname"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      {/* Barcode */}
+      <input
+        className="w-full border p-2 rounded mb-3"
+        placeholder="Barcode (optional)"
+        value={barcode}
+        onChange={(e) => setBarcode(e.target.value)}
+      />
+
+      {/* Bestand */}
+      <input
+        type="number"
+        className="w-full border p-2 rounded mb-3"
+        placeholder="Aktueller Bestand"
+        value={stock}
+        onChange={(e) => setStock(Number(e.target.value))}
+      />
+
+      {/* Mindestbestand */}
+      <input
+        type="number"
+        className="w-full border p-2 rounded mb-3"
+        placeholder="Mindestbestand"
+        value={minimumStock}
+        onChange={(e) => setMinimumStock(Number(e.target.value))}
+      />
+
+      {/* Ort */}
+      <input
+        className="w-full border p-2 rounded mb-3"
+        placeholder="Ort (optional)"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+      />
+
+      {/* Kategorie */}
+      <select
+        className="w-full border p-2 rounded mb-3"
+        value={categoryId}
+        onChange={(e) => setCategoryId(e.target.value)}
+      >
+        <option value="">Keine Kategorie</option>
+        {categories?.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Icon */}
+      <select
+        className="w-full border p-2 rounded mb-3"
+        value={icon}
+        onChange={(e) => setIcon(e.target.value)}
+      >
+        <option value="">Kein Icon</option>
+        {iconNames.map((iconName) => (
+          <option key={iconName} value={iconName}>
+            {iconName.replace("Icon", "")}
+          </option>
+        ))}
+      </select>
+
+      {/* Buttons */}
+      <div className="flex gap-2 mt-4">
+        <button
+          onClick={handleCreate}
+          className="flex-1 bg-blue-600 text-white py-2 rounded"
+        >
+          Erstellen
+        </button>
+
+        <button
+          onClick={onClose}
+          className="flex-1 bg-gray-300 text-black py-2 rounded"
+        >
+          Abbrechen
+        </button>
+      </div>
+    </div>
   );
 }

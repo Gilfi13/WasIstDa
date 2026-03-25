@@ -2,16 +2,25 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCategories, fetchArticles } from "@/lib/supabase-helpers";
 import { BottomNav } from "@/components/BottomNav";
 import { Tag, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useInstance } from "@/context/InstanceContext";
 
 export default function Categories() {
+  const navigate = useNavigate();
+  const { instanceId } = useInstance();
+
+  // Kategorien laden
   const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryKey: ["categories", instanceId],
+    queryFn: () => fetchCategories(instanceId!),
+    enabled: !!instanceId,
   });
 
+  // Artikel laden (für Zähler & Bestand)
   const { data: articles = [] } = useQuery({
-    queryKey: ["articles"],
-    queryFn: fetchArticles,
+    queryKey: ["articles", instanceId],
+    queryFn: () => fetchArticles(instanceId!),
+    enabled: !!instanceId,
   });
 
   const getCategoryCount = (catId: string) =>
@@ -24,6 +33,7 @@ export default function Categories() {
 
   return (
     <div className="min-h-screen pb-28">
+
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/50">
         <div className="max-w-5xl mx-auto flex items-center gap-3 px-6 py-4">
@@ -36,6 +46,17 @@ export default function Categories() {
         </div>
       </header>
 
+      {/* Button: Neue Kategorie */}
+<div className="max-w-5xl mx-auto px-6 mt-6">
+  <button
+    onClick={() => navigate("/categories/new")}
+    className="w-full h-16 rounded-3xl bg-blue-100 border border-blue-200 text-blue-600 font-semibold text-base shadow-sm hover:bg-blue-200 active:scale-[0.98] transition-all"
+  >
+    + Neue Kategorie erstellen
+  </button>
+</div>
+
+      {/* Kategorienliste */}
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-5">
         {(categories as any[]).map((cat, i) => {
           const count = getCategoryCount(cat.id);
@@ -44,7 +65,8 @@ export default function Categories() {
           return (
             <div
               key={cat.id}
-              className="flex items-center gap-5 p-6 rounded-3xl bg-card/80 backdrop-blur border border-border/60 shadow-sm transition active:scale-[0.98]"
+              onClick={() => navigate(`/categories/${cat.id}`)}
+              className="flex items-center gap-5 p-6 rounded-3xl bg-white border border-border shadow-sm transition active:scale-[0.98] cursor-pointer"
               style={{ animationDelay: `${i * 40}ms` }}
             >
               {/* Icon */}
@@ -59,7 +81,7 @@ export default function Categories() {
                 </p>
 
                 <p className="text-sm text-muted-foreground mt-1">
-                  {count} {count === 1 ? "Artikel" : "Artikel"}
+                  {count} Artikel
                 </p>
               </div>
 

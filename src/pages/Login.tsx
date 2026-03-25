@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useInstance } from "@/context/InstanceContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,22 +14,42 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
+  const navigate = useNavigate();
+  const { setInstanceId } = useInstance();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
         if (error) throw error;
-        toast.success("Account erstellt! 🎉");
+
+        if (data.session) {
+          setInstanceId(null);
+          toast.success("Account erstellt! 🎉");
+          navigate("/instance");
+        } else {
+          toast.success(
+            "Account erstellt! Prüfe bitte deine E-Mails zur Bestätigung."
+          );
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+
         if (error) throw error;
+
+        setInstanceId(null);
         toast.success("Willkommen zurück 👋");
+        navigate("/instance");
       }
     } catch (err: any) {
       toast.error(err.message || "Anmeldung fehlgeschlagen");
@@ -38,9 +60,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
-
       <div className="w-full max-w-md bg-card shadow-2xl rounded-3xl p-8 space-y-8">
-
         <div className="text-center space-y-4">
           <div className="mx-auto flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10">
             <Package className="h-10 w-10 text-primary" />
@@ -53,13 +73,12 @@ export default function Login() {
             <p className="text-sm text-muted-foreground mt-2">
               {isSignUp
                 ? "Erstelle deinen Account"
-                : ""}
+                : "Melde dich an, um eine Instanz auszuwählen"}
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-
           <div className="space-y-2">
             <Label htmlFor="email">E-Mail</Label>
             <Input
@@ -101,13 +120,13 @@ export default function Login() {
         <div className="text-center text-sm text-muted-foreground">
           {isSignUp ? "Bereits registriert?" : "Noch kein Account?"}{" "}
           <button
+            type="button"
             onClick={() => setIsSignUp(!isSignUp)}
             className="font-medium text-primary hover:opacity-80"
           >
             {isSignUp ? "Anmelden" : "Registrieren"}
           </button>
         </div>
-
       </div>
     </div>
   );
