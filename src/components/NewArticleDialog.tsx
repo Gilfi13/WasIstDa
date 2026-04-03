@@ -5,7 +5,13 @@ import { useInstance } from "@/context/InstanceContext";
 import { toast } from "sonner";
 import * as LucideIcons from "lucide-react/dist/esm/icons";
 
-export default function NewArticleDialog({ onClose }: { onClose: () => void }) {
+export default function NewArticleDialog({
+  onClose,
+  initialBarcode = "",
+}: {
+  onClose: () => void;
+  initialBarcode?: string;
+}) {
   const { instanceId } = useInstance();
 
   const [name, setName] = useState("");
@@ -14,7 +20,7 @@ export default function NewArticleDialog({ onClose }: { onClose: () => void }) {
   const [location, setLocation] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [icon, setIcon] = useState("");
-  const [barcode, setBarcode] = useState("");
+  const [barcode, setBarcode] = useState(initialBarcode);
 
   // Kategorien laden
   const { data: categories } = useQuery({

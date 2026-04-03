@@ -78,6 +78,7 @@ export default function Dashboard() {
         } else {
           if (currentMode === "add") {
             setNewArticleBarcode(barcode);
+            setIsDialogOpen(true);
           } else {
             toast.error("Artikel nicht gefunden.");
           }
@@ -182,7 +183,7 @@ export default function Dashboard() {
                 {totalStock}
               </p>
               <p className="text-xs text-muted-foreground">
-                Gesamtbestand
+                Bestand
               </p>
             </Card>
 
@@ -207,7 +208,7 @@ export default function Dashboard() {
             className="w-full h-16 text-base font-semibold rounded-3xl shadow-lg bg-blue-50/80 border border-blue-200/70 text-blue-800 hover:bg-blue-100/90 flex items-center justify-center gap-2"
           >
             <ChefHat className="h-6 w-6 text-blue-600 shrink-0" />
-            Küchen-Assistent – Gerichte aus Bestand
+            Küchen-Assistent
           </Button>
         </section>
 
@@ -392,7 +393,13 @@ export default function Dashboard() {
 
       {/* New Article */}
       {isDialogOpen && (
-  <NewArticleDialog onClose={closeDialog} />
+  <NewArticleDialog
+    onClose={() => {
+      setNewArticleBarcode(null);
+      closeDialog();
+    }}
+    initialBarcode={newArticleBarcode ?? ""}
+  />
 )}
 
       <RecipeIdeasSheet

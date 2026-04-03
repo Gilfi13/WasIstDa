@@ -310,6 +310,19 @@ export default function ArticlePage() {
         />
       </div>
 
+      {/* Aktueller Bestand */}
+      <div className="flex flex-col gap-1">
+        <label>Bestand</label>
+        <Input
+          type="number"
+          value={article.current_stock}
+          onChange={(e) =>
+            setArticle({ ...article, current_stock: Number(e.target.value) })
+          }
+          className="bg-white shadow-sm"
+        />
+      </div>
+
       {/* Lagerort */}
       <div className="flex flex-col gap-1">
         <label>Lagerort</label>
@@ -321,19 +334,6 @@ export default function ArticlePage() {
           className="bg-white shadow-sm"
         />
       </div>
-
-      {/* Speichern */}
-      <Button
-        onClick={handleSave}
-        disabled={saving}
-        className={`w-full h-14 rounded-2xl border font-semibold text-base shadow-sm transition-all active:scale-[0.98] ${
-          saved
-            ? "bg-blue-200 border-blue-300 text-blue-700"
-            : "bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200"
-        } disabled:opacity-50 disabled:hover:bg-blue-100`}
-      >
-        {saved ? "Gespeichert!" : saving ? "Speichern..." : "Speichern"}
-      </Button>
 
       {/* Icon Picker */}
       <IconPickerSheet
@@ -369,6 +369,19 @@ export default function ArticlePage() {
           </Button>
         </div>
       </div>
+
+      {/* Speichern */}
+      <Button
+        onClick={handleSave}
+        disabled={saving}
+        className={`w-full h-14 rounded-2xl border font-semibold text-base shadow-sm transition-all active:scale-[0.98] ${
+          saved
+            ? "bg-blue-200 border-blue-300 text-blue-700"
+            : "bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200"
+        } disabled:opacity-50 disabled:hover:bg-blue-100`}
+      >
+        {saved ? "Gespeichert!" : saving ? "Speichern..." : "Speichern"}
+      </Button>
     </div>
   );
 }

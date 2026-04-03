@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { ListChecks } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useInstance } from "@/context/InstanceContext";
+import * as LucideIcons from "lucide-react";
 
 export default function ArticleList() {
   const navigate = useNavigate();
@@ -51,7 +52,18 @@ export default function ArticleList() {
           >
             {/* Icon */}
             <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-accent">
-              <ListChecks className="h-6 w-6 text-accent-foreground" />
+              {article.icon &&
+              (LucideIcons as any)[article.icon as keyof typeof LucideIcons] ? (
+                (() => {
+                  const Icon =
+                    (LucideIcons as any)[
+                      article.icon as keyof typeof LucideIcons
+                    ];
+                  return <Icon className="h-6 w-6 text-accent-foreground" />;
+                })()
+              ) : (
+                <ListChecks className="h-6 w-6 text-accent-foreground" />
+              )}
             </div>
 
             {/* Text */}
