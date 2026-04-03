@@ -1,1 +1,4 @@
 project_id = "igvjvhbnejyjuilabblb"
+
+[functions.recipe-suggestions]
+verify_jwt = true

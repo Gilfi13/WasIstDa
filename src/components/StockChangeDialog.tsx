@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { updateStock } from "@/lib/supabase-helpers";
 import { toast } from "sonner";
+import { useInstance } from "@/context/InstanceContext";
 
 interface StockChangeDialogProps {
   open: boolean;
@@ -26,12 +27,14 @@ export default function StockChangeDialog({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { instanceId } = useInstance();
+
   useEffect(() => {
     if (open) {
-      setSelectedAmount(1);
+      setSelectedAmount(amount);
       setIsDropdownOpen(false);
     }
-  }, [open]);
+  }, [open, amount]);
 
   if (!article) return null;
 
@@ -39,10 +42,15 @@ export default function StockChangeDialog({
   const change = mode === "add" ? selectedAmount : -selectedAmount;
 
   const handleConfirm = async () => {
+    if (!instanceId) {
+      toast.error("Keine Instanz ausgewählt.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const newStock = await updateStock(article.id, change);
+      const newStock = await updateStock(article.id, change, instanceId);
       const verb = mode === "add" ? "eingebucht" : "ausgebucht";
 
       toast.success(
@@ -60,7 +68,7 @@ export default function StockChangeDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="mx-4 rounded-3xl bg-white shadow-xl overflow-visible">
+      <DialogContent className="mx-4 w-full max-w-sm rounded-3xl bg-white shadow-xl overflow-visible">
 
         {/* Header */}
         <div className="flex items-center justify-center relative py-4 border-b border-gray-200">
@@ -109,13 +117,13 @@ export default function StockChangeDialog({
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden z-50">
+              <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-y-auto max-h-56 z-50">
 
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                   <button
                     key={n}
                     type="button"
-                    className="w-full px-4 py-3 text-center hover:bg-gray-100 transition"
+                    className="w-full px-4 py-3 text-center hover:bg-gray-100 transition disabled:opacity-40"
                     onClick={() => {
                       setSelectedAmount(n);
                       setIsDropdownOpen(false);

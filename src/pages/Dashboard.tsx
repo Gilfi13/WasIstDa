@@ -12,7 +12,8 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import * as LucideIcons from "lucide-react";
-import { Search, Plus, Minus, LogOut, BarChart3, Package } from "lucide-react";
+import { Search, Plus, Minus, LogOut, BarChart3, Package, ChefHat } from "lucide-react";
+import { RecipeIdeasSheet } from "@/components/RecipeIdeasSheet";
 import { useInstance } from "@/context/InstanceContext";   // <--- NEU
 
 export default function Dashboard() {
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [stockDialog, setStockDialog] = useState<{ article: any; mode: "add" | "remove"; amount?: number } | null>(null);
   const [newArticleBarcode, setNewArticleBarcode] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [recipeSheetOpen, setRecipeSheetOpen] = useState(false);
 
   const { instanceId } = useInstance();
 
@@ -195,6 +197,19 @@ export default function Dashboard() {
 
           </section>
         )}
+
+        {/* KÜCHEN-ASSISTENT */}
+        <section>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setRecipeSheetOpen(true)}
+            className="w-full h-16 text-base font-semibold rounded-3xl shadow-lg bg-blue-50/80 border border-blue-200/70 text-blue-800 hover:bg-blue-100/90 flex items-center justify-center gap-2"
+          >
+            <ChefHat className="h-6 w-6 text-blue-600 shrink-0" />
+            Küchen-Assistent – Gerichte aus Bestand
+          </Button>
+        </section>
 
         {/* SCAN BUTTONS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -379,6 +394,12 @@ export default function Dashboard() {
       {isDialogOpen && (
   <NewArticleDialog onClose={closeDialog} />
 )}
+
+      <RecipeIdeasSheet
+        open={recipeSheetOpen}
+        onOpenChange={setRecipeSheetOpen}
+        articles={articles}
+      />
 
       <BottomNav />
 

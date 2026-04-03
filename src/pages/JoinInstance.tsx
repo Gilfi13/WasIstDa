@@ -115,15 +115,16 @@ export default function JoinInstance() {
   }, [codeArray, fullCode, loading, lastTriedCode]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-background">
-      <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 bg-background">
+      <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-6 sm:p-8 space-y-8 border border-gray-100">
+        
         <div className="text-center space-y-4">
           <div className="mx-auto flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10">
             <KeyRound className="h-10 w-10 text-primary" />
           </div>
 
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
               Instanz beitreten
             </h1>
             <p className="text-sm text-muted-foreground mt-2">
@@ -136,7 +137,7 @@ export default function JoinInstance() {
           <div className="space-y-3">
             <Label>Instanz-Code</Label>
 
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-2 sm:gap-3">
               {codeArray.map((char, index) => (
                 <input
                   key={index}
@@ -147,7 +148,7 @@ export default function JoinInstance() {
                   value={char}
                   onChange={(e) => handleChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  className="h-14 w-12 rounded-xl border border-blue-100 bg-blue-50 text-center text-lg font-semibold text-gray-900 shadow-sm outline-none transition-all focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-200"
+                  className="h-12 w-10 sm:h-14 sm:w-12 rounded-xl border border-blue-100 bg-blue-50 text-center text-lg font-semibold text-gray-900 shadow-sm outline-none transition-all focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-200"
                 />
               ))}
             </div>
