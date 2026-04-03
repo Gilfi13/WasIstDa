@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { findInstanceByCode } from "@/lib/instance-helpers";
 import { useInstance } from "@/context/InstanceContext";
 import { supabase } from "@/integrations/supabase/client";
+import { consumePostInstanceRedirect } from "@/lib/post-instance-redirect";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -91,7 +92,7 @@ export default function JoinInstance() {
       }
 
       setInstanceId(instance.id);
-      navigate("/");
+      navigate(consumePostInstanceRedirect("/"));
     } catch (err: any) {
       setErrorMsg(err.message || "Fehler beim Beitreten.");
     } finally {

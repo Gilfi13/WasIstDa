@@ -11,8 +11,18 @@ const InstanceContext = createContext<InstanceContextType>({
   setInstanceId: () => {},
 });
 
+function readStoredInstanceId(): string | null {
+  try {
+    return localStorage.getItem("instanceId");
+  } catch {
+    return null;
+  }
+}
+
 export function InstanceProvider({ children }: { children: React.ReactNode }) {
-  const [instanceId, setInstanceIdState] = useState<string | null>(null);
+  const [instanceId, setInstanceIdState] = useState<string | null>(
+    readStoredInstanceId
+  );
 
   // Wrapper: speichert zusätzlich in localStorage
   function setInstanceId(id: string | null) {

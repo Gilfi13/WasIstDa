@@ -42,6 +42,12 @@ import { BottomNav } from "@/components/BottomNav";
 
 const queryClient = new QueryClient();
 
+function NavigateToInstanceSelect() {
+  const location = useLocation();
+  const next = encodeURIComponent(`${location.pathname}${location.search}`);
+  return <Navigate to={`/instance?next=${next}`} replace />;
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -83,7 +89,7 @@ function AppRoutes() {
         <Route path="/instance" element={<InstanceSelect />} />
         <Route path="/instance/create" element={<CreateInstance />} />
         <Route path="/instance/join" element={<JoinInstance />} />
-        <Route path="*" element={<Navigate to="/instance" replace />} />
+        <Route path="*" element={<NavigateToInstanceSelect />} />
       </Routes>
     );
   }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createInstance, joinInstance } from "@/lib/instance-helpers";
 import { useInstance } from "@/context/InstanceContext";
 import { supabase } from "@/integrations/supabase/client";
+import { consumePostInstanceRedirect } from "@/lib/post-instance-redirect";
 import { Package, Plus } from "lucide-react";
 
 export default function CreateInstance() {
@@ -32,7 +33,7 @@ export default function CreateInstance() {
 
       setInstanceId(instance.id);
 
-      navigate("/articles");
+      navigate(consumePostInstanceRedirect("/articles"));
     } catch (err: any) {
       setErrorMsg(err.message || "Fehler beim Erstellen der Instanz.");
     } finally {

@@ -1,9 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Package, Plus, LogIn } from "lucide-react";
+import { useEffect } from "react";
+import { savePostInstanceRedirect } from "@/lib/post-instance-redirect";
 
 export default function InstanceSelect() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const next = searchParams.get("next");
+    if (!next) return;
+    try {
+      savePostInstanceRedirect(decodeURIComponent(next));
+    } catch {
+      savePostInstanceRedirect(next);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
