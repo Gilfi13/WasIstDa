@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchArticles, findArticleByBarcode } from "@/lib/supabase-helpers";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import StockChangeDialog from "@/components/StockChangeDialog";
-import NewArticleDialog from "@/components/NewArticleDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,21 +19,9 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Dialog-Status für "Neuen Artikel erstellen"
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  function openDialog() {
-    setIsDialogOpen(true);
-  }
-
-  function closeDialog() {
-    setIsDialogOpen(false);
-  }
-
   const [scanMode, setScanMode] = useState<"add" | "remove" | null>(null);
   const [showStats, setShowStats] = useState(false);
   const [stockDialog, setStockDialog] = useState<{ article: any; mode: "add" | "remove"; amount?: number } | null>(null);
-  const [newArticleBarcode, setNewArticleBarcode] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [recipeSheetOpen, setRecipeSheetOpen] = useState(false);
 
@@ -77,8 +64,7 @@ export default function Dashboard() {
           setStockDialog({ article, mode: currentMode! });
         } else {
           if (currentMode === "add") {
-            setNewArticleBarcode(barcode);
-            setIsDialogOpen(true);
+            navigate(`/articles/new?barcode=${encodeURIComponent(barcode)}`);
           } else {
             toast.error("Artikel nicht gefunden.");
           }
@@ -87,7 +73,7 @@ export default function Dashboard() {
         toast.error("Fehler: " + err.message);
       }
     },
-    [scanMode]
+    [scanMode, instanceId, navigate]
   );
 
   const handleLogout = async () => {
@@ -390,17 +376,6 @@ export default function Dashboard() {
           queryClient.invalidateQueries({ queryKey: ["articles"] })
         }
       />
-
-      {/* New Article */}
-      {isDialogOpen && (
-  <NewArticleDialog
-    onClose={() => {
-      setNewArticleBarcode(null);
-      closeDialog();
-    }}
-    initialBarcode={newArticleBarcode ?? ""}
-  />
-)}
 
       <RecipeIdeasSheet
         open={recipeSheetOpen}

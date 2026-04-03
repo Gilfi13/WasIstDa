@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import * as LucideIconsRaw from "lucide-react/dist/esm/icons";
 import { ScanLine } from "lucide-react";
 import {
@@ -135,6 +135,7 @@ function IconPickerSheet({
 
 export default function NewArticle() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { instanceId } = useInstance();
 
   const [article, setArticle] = useState<{
@@ -157,6 +158,12 @@ export default function NewArticle() {
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isNoBarcodeModalOpen, setIsNoBarcodeModalOpen] = useState(false);
+  const barcodeFromQuery = searchParams.get("barcode") || "";
+
+  useEffect(() => {
+    if (!barcodeFromQuery) return;
+    setArticle((prev) => ({ ...prev, barcode: barcodeFromQuery }));
+  }, [barcodeFromQuery]);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["categories", instanceId],
