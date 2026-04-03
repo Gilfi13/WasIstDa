@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BarcodeScanner } from "@/components/BarcodeScanner";
 
 import * as LucideIcons from "lucide-react";
 import { Trash2 } from "lucide-react";
@@ -142,6 +143,7 @@ export default function ArticlePage() {
   const [saved, setSaved] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const { instanceId } = useInstance();
   useEffect(() => {
     if (!id) return;
@@ -362,7 +364,7 @@ export default function ArticlePage() {
             type="button"
             variant="outline"
             onClick={() => {
-              navigate("/scan");
+              setIsScannerOpen(true);
             }}
           >
             Scannen
@@ -382,6 +384,17 @@ export default function ArticlePage() {
       >
         {saved ? "Gespeichert!" : saving ? "Speichern..." : "Speichern"}
       </Button>
+
+      {isScannerOpen && (
+        <BarcodeScanner
+          onScan={(code: string) => {
+            setArticle((prev) => (prev ? { ...prev, barcode: code } : prev));
+            setIsScannerOpen(false);
+            toast.success("Barcode erfolgreich gescannt");
+          }}
+          onClose={() => setIsScannerOpen(false)}
+        />
+      )}
     </div>
   );
 }
